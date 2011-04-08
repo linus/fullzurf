@@ -1,0 +1,12 @@
+{
+    "name": "FullZurf",
+    "version": "0.1.0",
+    "description": "Use Chrome in fullscreen",
+    "background_page": "fullzurf.html",
+    "permissions": [ "tabs" ],
+    "content_scripts": [ {
+        "matches": [ "http://*/*", "https://*/*", "ftp://*/*", "file:///*" ],
+        "js": [ "controls.js" ],
+        "run_at": "document_end"
+    } ]
+}

@@ -13,13 +13,9 @@ colors =
 applyStyles
   'common': [
     'position: fixed'
-    'border-radius: 0.125em'
-    '-moz-border-radius: 0.125em'
-    '-webkit-border-radius: 0.125em'
     'z-index: 1000'
   ]
   'button': [
-    "position: absolute"
     "padding: 0.25em"
     "width: 2em"
     "height: 2em"
@@ -27,6 +23,26 @@ applyStyles
     "color: #{colors.light}"
     "background: #{colors.dark}"
     "border: none"
+  ]
+  'button.top': [ "top: 0" ]
+  'button.bottom': [ "bottom: 0" ]
+  'button.left': [ "left: 0" ]
+  'button.right': [ "right: 0" ]
+  'button.top.left': [
+    'border-bottom-right-radius: 0.125em'
+    '-webkit-border-bottom-right-radius: 0.125em'
+  ]
+  'button.top.right': [
+    'border-bottom-left-radius: 0.125em'
+    '-webkit-border-bottom-left-radius: 0.125em'
+  ]
+  'button.bottom.left': [
+    'border-top-right-radius: 0.125em'
+    '-webkit-border-top-right-radius: 0.125em'
+  ]
+  'button.bottom.left': [
+    'border-top-right-radius: 0.125em'
+    '-webkit-top-bottom-right-radius: 0.125em'
   ]
   'button:hover': [
     'cursor: pointer'
@@ -50,35 +66,30 @@ fullZurf = document.createElement('div')
 fullZurf.id = 'fullZurf'
 fullZurf.style.display = 'none'
 
-createButton = (container, content, props, action) ->
+createButton = (content, className, action) ->
   button = document.createElement('button')
   button.innerHTML = content
   button.onclick = action
-  for attr, val of props
-    button.style[attr] = val
-  
-  container.appendChild(button)
+  button.className = className
 
-gutter =
-  h: '0.5em'
-  v: '0.25em'
+  return button
 
 timeout = null
 document.onmousemove = ->
   # only visible in fullscreen
-  #if screen.width is window.innerWidth and screen.height is window.innerHeight
-  clearTimeout(timeout)
-  fullZurf.style.display = 'block'
-  timeout = setTimeout (-> fullZurf.style.display = 'none'), 1000
+  if screen.width is window.outerWidth and screen.height is window.outerHeight
+    clearTimeout(timeout)
+    fullZurf.style.display = 'block'
+    timeout = setTimeout (-> fullZurf.style.display = 'none'), 1000
 
 port = chrome.extension.connect name: 'fullZurf'
 port.onMessage.addListener (message) -> console.log(message)
 
-createButton fullZurf, '←', top: gutter.h, left: gutter.v, -> history.back()
-createButton fullZurf, '→', top: gutter.h, right: gutter.v, -> history.forward()
+fullZurf.appendChild createButton('←', "top left", -> history.back())
+fullZurf.appendChild createButton('→', "top right", -> history.forward())
 
-createButton fullZurf, '↤', bottom: gutter.h, left: gutter.v, -> port.postMessage tab: 'prev'
-createButton fullZurf, '↦', bottom: gutter.h, right: gutter.v, -> port.postMessage tab: 'next'
+fullZurf.appendChild createButton('↤', "bottom left", -> port.postMessage tab: 'prev')
+fullZurf.appendChild createButton('↦', "bottom right", -> port.postMessage tab: 'next')
 
 form = document.createElement('form')
 input = document.createElement('input')
